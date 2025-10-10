@@ -14,6 +14,10 @@ struct Carta {
 	float area;
 	float pib;
 	int pontos_turisticos;
+
+	// campos calculados dinamicamente
+	float densidade_populacional;
+	float pib_per_capita;
 };
 
 void imprimir_instrucoes(void);
@@ -29,6 +33,24 @@ void cadastrar_carta(int indice, struct Carta *carta);
 void imprimir_carta(struct Carta *carta);
 
 /*
+ * Função que calcula a densidade populacional.
+ * Retorna erro se a area for 0.
+ */
+float calcula_densidade_populacional(int populacao, float area);
+
+/*
+ * Função que calcula o pib per capita.
+ * Retorna erro se a populacao for 0.
+ */
+float calcula_pib_per_capita(float pib, int populacao);
+
+/*
+ * Compara cartas com base na densidade populacional e imprime a carta vencedora
+ */
+void compara_cartas(struct Carta *carta1, struct Carta *carta2);
+
+/*
+ * ============= FUNÇÕES DE ENTRADAD DE DADOS ===================
  * Criei essa função com base em documentação na internet para
  * resolver o problema que, ao ler qualquer coisa, após ler uma
  * string usando scanf, o input não era lido corretamente.
@@ -54,6 +76,8 @@ int main(int argc, char *argv[])
 
 	cadastrar_carta(2, carta2);
 	imprimir_carta(carta2);
+
+	compara_cartas(carta1, carta2);
 
 	free(carta1);
 	free(carta2);
@@ -86,6 +110,9 @@ void cadastrar_carta(int indice, struct Carta *carta)
 
 	printf("Número de pontos turísticos: ");
 	carta->pontos_turisticos = ler_int();
+
+	carta->densidade_populacional = calcula_densidade_populacional(carta->populacao, carta->area);
+	carta->pib_per_capita = calcula_pib_per_capita(carta->pib, carta->populacao);
 }
 
 void imprimir_carta(struct Carta *carta)
@@ -99,6 +126,49 @@ void imprimir_carta(struct Carta *carta)
 	printf("Área: %f\n", carta->area);
 	printf("PIB: %f\n", carta->pib);
 	printf("Número de pontos turísticos: %d\n", carta->pontos_turisticos);
+	printf("Densidade populacional: %f\n", carta->densidade_populacional);
+	printf("PIB per capita: %f\n", carta->pib_per_capita);
+}
+
+
+float calcula_densidade_populacional(int populacao, float area)
+{
+	if(area == 0)
+	{
+		printf("Erro ao calcular densidade populacional. Área não pode ser zero.");
+		exit(1);
+	}
+
+	return populacao / area;
+}
+
+float calcula_pib_per_capita(float pib, int populacao)
+{
+	if(populacao == 0)
+	{
+		printf("Erro ao calcular PIB per capita. População não pode ser zero.");
+		exit(1);
+	}
+
+	return pib / populacao;
+}
+
+void compara_cartas(struct Carta *carta1, struct Carta *carta2)
+{
+	printf("\n\n\nCOMPARANDO CARTAS.........");
+	printf("\nDensidade populacional de %s: %f.", carta1->cidade, carta1->densidade_populacional);
+	printf("\nDensidade populacional de %s: %f.", carta2->cidade, carta2->densidade_populacional);
+	if(carta1->densidade_populacional < carta2->densidade_populacional)
+	{
+		printf("\n\nA carta %s é a vencedora pois possuí uma densidade populacional menor!!!\n", carta1->cidade);
+		return;
+	} else if(carta1->densidade_populacional < carta2->densidade_populacional)
+	{
+		printf("\n\nEMPATE. As duas cartas possuem a mesma densidade populacional!\n");
+		return;
+	}
+
+	printf("\n\nA carta %s é a vencedora pois possuí uma densidade populacional menor!!!\n", carta2->cidade);
 }
 
 // Referencia: https://sekrit.de/webdocs/c/beginners-guide-away-from-scanf.html
@@ -201,5 +271,6 @@ void imprimir_instrucoes(void)
 	printf("/_______  /____/|   __/ \\___  >__|      |____|   |__|  |____/|___|  /__|  \\____/ \n");
 	printf("        \\/      |__|        \\/                                    \\/             \n\n");
 
-	printf("Bem vindo ao Jogo Super Trunfo!!! Primeiramente, vamos cadastrar as cartas que serão usadas durante as partidas.\n\n");
+	printf("Bem vindo ao Jogo Super Trunfo!!! Primeiramente, vamos cadastrar as cartas que serão usadas durante as partidas.\n");
+	printf("Após cadastradas, as cartas serão comparadas por densidade populacional, e a que tiver um número menor será a vencedora!\n\n");
 }
