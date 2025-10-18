@@ -41,6 +41,11 @@ void imprimir_instrucoes(void);
 void menu_inicial(struct Carta *carta1, struct Carta *carta2);
 
 /*
+ * Imprime os atributos disponiveis para comparação.
+ */
+void imprime_atributos(int indice);
+
+/*
  * Menu que permite ao usuário escolher qual atributo será usado para comparação.
  * Depois realiza a comparação
  * Parâmetros de entrada:
@@ -73,14 +78,42 @@ float calcula_densidade_populacional(int populacao, float area);
 float calcula_pib_per_capita(float pib, int populacao);
 
 /*
- * Compara cartas com base na densidade populacional e imprime a carta vencedora
+ * Compara cartas com base no atributo passado como parametro e imprime a carta vencedora
  */
 void compara_cartas(struct Carta *carta1, struct Carta *carta2, int atributo);
+
+/*
+ * Dado uma carta e um inteiro que corresponde à um atributo da carta,
+ * retorna o valor do atributo.
+ */
+float busca_valor_por_atributo(struct Carta *carta, int atributo);
+
+/*
+ * Dado um inteiro que corresponde à um atributo da carta,
+ * retorna a descrição ou nome do atributo.
+ */
+const char *busca_descricao_por_atributo(int atributo);
+
+/*
+ * Compara cartas com base nos dois atributos passado como parametro e imprime a carta vencedora
+ * A comparação se dá com base na soma dos valores dos dois atributos
+ */
+void compara_cartas_multiplo(struct Carta *carta1, struct Carta *carta2, int atributo1, int atributo2);
 
 /*
  * Menu que exibe a opção de continuar jogando ou encerrar o jogo
  */
 int deseja_continuar(void);
+
+/*
+ * Compara dois atributos do tipo inteiro.
+ */
+void compara_int(int a, int b, char *carta_a, char *carta_b, const char *atributo, int vence_o_maior);
+
+/*
+ * Compara dois atributos do tipo ponto flutuante.
+ */
+void compara_float(float a, float b, char *carta_a, char *carta_b, const char *atributo, int vence_o_maior);
 
 /*
  * ============= FUNÇÕES DE ENTRADADA DE DADOS ===================
@@ -102,11 +135,11 @@ int main(int argc, char *argv[])
 	struct Carta *carta1 = malloc(sizeof(struct Carta));
 	struct Carta *carta2 = malloc(sizeof(struct Carta));
 
-	while(deseja_continuar())
+	do 
 	{
 		imprimir_instrucoes();
 		menu_inicial(carta1, carta2);
-	}
+	} while(deseja_continuar());
 
 	free(carta1);
 	free(carta2);
@@ -189,111 +222,84 @@ void compara_cartas(struct Carta *carta1, struct Carta *carta2, int atributo)
 	switch(atributo)
 	{
 		case 1:
-			if(carta1->populacao > carta2->populacao)
-			{
-				printf("\n\nA carta %s é a vencedora pois possui uma população maior, de %d contra %d da carta %s.\n",
-						carta1->codigo, carta1->populacao, carta2->populacao, carta2->codigo);
-			}
-			else if(carta1->populacao < carta2->populacao)
-			{
-				printf("\n\nA carta %s é a vencedora pois possui uma população maior, de %d contra %d da carta %s.\n",
-						carta2->codigo, carta2->populacao, carta1->populacao, carta1->codigo);
-			}
-			else
-			{
-				printf("\n\nEMPATE, pois a carta %s possui a mesma população de %d que a carta %s.\n",
-						carta2->codigo, carta2->populacao, carta1->codigo);
-			}
+			compara_int(carta1->populacao, carta2->populacao, carta1->codigo, carta2->codigo, "população", 1);
 			break;
 		case 2:
-			if(carta1->area > carta2->area)
-			{
-				printf("\n\nA carta %s é a vencedora pois possui uma área maior, de %f contra %f da carta %s.\n",
-						carta1->codigo, carta1->area, carta2->area, carta2->codigo);
-			}
-			else if(carta1->area < carta2->area)
-			{
-				printf("\n\nA carta %s é a vencedora pois possui uma área maior, de %f contra %f da carta %s.\n",
-						carta2->codigo, carta2->area, carta1->area, carta1->codigo);
-			}
-			else
-			{
-				printf("\n\nEMPATE, pois a carta %s possui a mesma área de %f que a carta %s.\n",
-						carta2->codigo, carta2->area, carta1->codigo);
-			}
+			compara_float(carta1->area, carta2->area, carta1->codigo, carta2->codigo, "área", 1);
 			break;
 		case 3:
-			if(carta1->pib > carta2->pib)
-			{
-				printf("\n\nA carta %s é a vencedora pois possui um PIB maior, de %f contra %f da carta %s.\n",
-						carta1->codigo, carta1->pib, carta2->pib, carta2->codigo);
-			}
-			else if(carta1->pib < carta2->pib)
-			{
-				printf("\n\nA carta %s é a vencedora pois possui um PIB maior, de %f contra %f da carta %s.\n",
-						carta2->codigo, carta2->pib, carta1->pib, carta1->codigo);
-			}
-			else
-			{
-				printf("\n\nEMPATE, pois a carta %s possui o mesma PIB de %f que a carta %s.\n",
-						carta2->codigo, carta2->pib, carta1->codigo);
-			}
+			compara_float(carta1->pib, carta2->pib, carta1->codigo, carta2->codigo, "PIB", 1);
 			break;
 		case 4:
-			if(carta1->pontos_turisticos > carta2->pontos_turisticos)
-			{
-				printf("\n\nA carta %s é a vencedora pois possui mais pontos turísticos, %d contra %d da carta %s.\n",
-						carta1->codigo, carta1->pontos_turisticos, carta2->pontos_turisticos, carta2->codigo);
-			}
-			else if(carta1->pontos_turisticos < carta2->pontos_turisticos)
-			{
-				printf("\n\nA carta %s é a vencedora pois possui mais pontos turísticos, %d contra %d da carta %s.\n",
-						carta2->codigo, carta2->pontos_turisticos, carta1->pontos_turisticos, carta1->codigo);
-			}
-			else
-			{
-				printf("\n\nEMPATE, pois a carta %s possui o mesmo número de pontos túristicos, %d, que a carta %s.\n",
-						carta2->codigo, carta2->pontos_turisticos, carta1->codigo);
-			}
+			compara_int(carta1->pontos_turisticos, carta2->pontos_turisticos, carta1->codigo, carta2->codigo, "pontos turisticos", 1);
 			break;
 		case 5:
-			if(carta1->densidade_populacional < carta2->densidade_populacional)
-			{
-				printf("\n\nA carta %s é a vencedora pois possui uma menor densidade populacional, de %f contra %f da carta %s.\n",
-						carta1->codigo, carta1->densidade_populacional, carta2->densidade_populacional, carta2->codigo);
-			}
-			else if(carta1->densidade_populacional > carta2->densidade_populacional)
-			{
-				printf("\n\nA carta %s é a vencedora pois possui uma menor densidade populacional, de %f contra %f da carta %s.\n",
-						carta2->codigo, carta2->densidade_populacional, carta1->densidade_populacional, carta1->codigo);
-			}
-			else
-			{
-				printf("\n\nEMPATE, pois a carta %s possui a mesma densidade populacional, %f, que a carta %s.\n",
-						carta2->codigo, carta2->densidade_populacional, carta1->codigo);
-			}
+			compara_float(carta1->densidade_populacional, carta2->densidade_populacional, carta1->codigo, carta2->codigo, "densidade populacional", 0);
 			break;
 		case 6:
-			if(carta1->pib_per_capita > carta2->pib_per_capita)
-			{
-				printf("\n\nA carta %s é a vencedora pois possui um maior PIB per capita, de %f contra %f da carta %s.\n",
-						carta1->codigo, carta1->pib_per_capita, carta2->pib_per_capita, carta2->codigo);
-			}
-			else if(carta1->pib_per_capita < carta2->pib_per_capita)
-			{
-				printf("\n\nA carta %s é a vencedora pois possui um maior PIB per capita, de %f contra %f da carta %s.\n",
-						carta2->codigo, carta2->pib_per_capita, carta1->pib_per_capita, carta1->codigo);
-			}
-			else
-			{
-				printf("\n\nEMPATE, pois a carta %s possui o mesmo PIB per capita, %f, que a carta %s.\n",
-						carta2->codigo, carta2->pib_per_capita, carta1->codigo);
-			}
+			compara_float(carta1->pib_per_capita, carta2->pib_per_capita, carta1->codigo, carta2->codigo, "PIB per capita", 1);
 			break;
 		default:
 			printf("\n\nAtributo inválido!!!\n");
 			break;
 	}
+}
+
+const char *busca_descricao_por_atributo(int atributo)
+{
+	const char *atributos[] = {
+		"população",
+		"área",
+		"PIB",
+		"pontos turísticos",
+		"densidade populacional",
+		"PIB per capita"
+	};
+
+	if (atributo < 1 || atributo > 6)
+	{
+		return "atributo inválido";
+	}
+
+	return atributos[atributo - 1];
+}
+
+float busca_valor_por_atributo(struct Carta *carta, int atributo)
+{
+	switch(atributo)
+	{
+		case 1:
+			return (float) carta->populacao;
+		case 2:
+			return carta->area;
+		case 3:
+			return carta->pib;
+		case 4:
+			return (float) carta->pontos_turisticos;
+		case 5:
+			return carta->densidade_populacional;
+		case 6:
+			return carta->pib_per_capita;
+		default:
+			printf("\n\nAtributo inválido!!!\n");
+			return -1;
+	}
+}
+
+void compara_cartas_multiplo(struct Carta *carta1, struct Carta *carta2, int atributo1, int atributo2)
+{
+	float carta_a_valor1 = busca_valor_por_atributo(carta1, atributo1);
+	float carta_a_valor2 = busca_valor_por_atributo(carta1, atributo2);
+
+	float carta_b_valor1 = busca_valor_por_atributo(carta2, atributo1);
+	float carta_b_valor2 = busca_valor_por_atributo(carta2, atributo2);
+
+	char descricao[128];
+	snprintf(descricao, sizeof(descricao), "%s + %s",
+			busca_descricao_por_atributo(atributo1),
+			busca_descricao_por_atributo(atributo2));
+	
+	compara_float(carta_a_valor1 + carta_a_valor2, carta_b_valor1 + carta_b_valor2, carta1->codigo, carta2->codigo, descricao, 1);
 }
 
 // Referencia: https://sekrit.de/webdocs/c/beginners-guide-away-from-scanf.html
@@ -433,27 +439,86 @@ void menu_inicial(struct Carta *carta1, struct Carta *carta2)
 	}
 }
 
-/*
- * Menu que exibe qual atributo será usado para comparação.
- */
-void menu_comparacao(struct Carta *carta1, struct Carta *carta2)
+void imprime_atributos(int indice)
 {
-	printf("Selecione qual atributo você quer usar para comparar as cartas: \n");
+	printf("Selecione o %d° atributo que você quer usar para comparar as cartas: \n", indice);
 	printf("1. População\n");
 	printf("2. Área\n");
 	printf("3. PIB\n");
 	printf("4. Pontos turísticos\n");
 	printf("5. Densidade populacional\n");
 	printf("6. PIB per capita\n");
+}
 
-	int opcao = ler_int();
+void menu_comparacao(struct Carta *carta1, struct Carta *carta2)
+{
+	imprime_atributos(1);
+	int atributo1 = ler_int();
 
-	compara_cartas(carta1, carta2, opcao);
+	imprime_atributos(2);
+	int atributo2 = ler_int();
+
+	if(atributo1 == atributo2)
+	{
+		printf("\n\nEscolha atributos diferentes para comparação!!!\n\n");
+		return;
+	}
+
+	compara_cartas(carta1, carta2, atributo1);
+	compara_cartas(carta1, carta2, atributo2);
+
+	compara_cartas_multiplo(carta1, carta2, atributo1, atributo2);
 }
 
 int deseja_continuar(void)
 {
-	printf("\n\nDeseja continuar jogando? 1. Não / Qualquer outro número. Sim");
+	printf("\n\nDeseja continuar jogando? 1. Não / Qualquer outro número. Sim\n");
 	int opcao = ler_int();
 	return opcao - 1;
+}
+
+void compara_int(int a, int b, char *carta_a, char *carta_b, const char *atributo, int vence_o_maior)
+{
+	if(a == b)
+	{
+		printf("\nCarta %s empatou com carta %s, pois ambas possuem o mesmo valor de %s: %d\n",
+				carta_a,
+				carta_b,
+				atributo,
+				a);
+		return;
+	}
+
+	int a_ganhou = vence_o_maior ? a > b : a < b;
+
+	printf("\nA carta %s ganhou pois tem %s %s, %d contra %d da carta %s\n",
+			a_ganhou ? carta_a : carta_b,
+			atributo,
+			vence_o_maior ? "maior" : "menor",
+			a_ganhou ? a : b,
+			a_ganhou ? b : a,
+			a_ganhou ? carta_b : carta_a);
+}
+
+void compara_float(float a, float b, char *carta_a, char *carta_b, const char *atributo, int vence_o_maior)
+{
+	if(a == b)
+	{
+		printf("\nCarta %s empatou com carta %s, pois ambas possuem o mesmo valor de %s: %f\n",
+				carta_a,
+				carta_b,
+				atributo,
+				a);
+		return;
+	}
+
+	int a_ganhou = vence_o_maior ? a > b : a < b;
+
+	printf("\nA carta %s ganhou pois tem %s %s, %f contra %f da carta %s\n",
+			a_ganhou ? carta_a : carta_b,
+			atributo,
+			vence_o_maior ? "maior" : "menor",
+			a_ganhou ? a : b,
+			a_ganhou ? b : a,
+			a_ganhou ? carta_b : carta_a);
 }
